@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">SolarBars</string>
+    <string name="battery_state">Battery State</string>
+    <string name="energy">Panel/Batt/Load Energy</string>
+    <string name="power">Panel/Batt/Load Power</string>
 </resources>
