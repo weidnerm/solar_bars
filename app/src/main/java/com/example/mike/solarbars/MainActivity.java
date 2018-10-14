@@ -54,8 +54,9 @@ public class MainActivity extends AppCompatActivity {
 
     int m_panel_index = 0;
     int m_load_index = 0;
-    int[] m_battery_index = new int[10];
+    int[] m_battery_index = new int[8];
 
+    double accumActualBatFracMaxDrainRelative = 0;
 
     int[] m_barColors = new int[10*2];
 
@@ -177,6 +178,8 @@ public class MainActivity extends AppCompatActivity {
 
 
                 setData(8);
+                setData2(3);
+                setData3(3);
                 try {
                     myNetworkTxHandler = new NetworkTxHandler();
                     myNetworkTxHandler.execute();
@@ -245,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<BarEntry> yValues = new ArrayList<>();
         xLabel1 = new ArrayList<>();
 
-        double accumActualBatFracMaxDrainRelative = 0;
+        accumActualBatFracMaxDrainRelative = 0;
         for(int i=0; i<count; i++){
             float val1 = (float)(Math.random()*60)+ 20;
             float val2 = 100-val1;
@@ -329,27 +332,52 @@ public class MainActivity extends AppCompatActivity {
     public void setData2(int count){
         ArrayList<BarEntry> yValues = new ArrayList<>();
         xLabel2 = new ArrayList<>();
+        int [] colors = new int[count];
 
-        for(int i=0; i<count; i++){
-            float val1 = (float)(Math.random()*10)+ 2;
+        // Handle panel today energy bar
+        float mA_hours = (float)m_todayCumulativeEnergy[m_panel_index]/3600f/1000f;  // /3600 convert sec to hr; /1000 mA to A;
+        yValues.add(new BarEntry(0, new float[]{mA_hours}));
+        xLabel2.add(String.format("Panel\n\n\n%2.1f AH", mA_hours));
+        colors[0] = Color.GREEN;
 
-            yValues.add(new BarEntry(i, new float[]{val1}));
+        // handle Battery today energy bar
+        int bat_today_color = Color.RED;
+        int mA_sec = 0;
+        for(int index=0; index<m_battery_index.length; index++)
+        {
+            int batt_index = m_battery_index[index];
+            mA_sec += m_todayCumulativeEnergy[batt_index];
         }
-        xLabel2.add("Panel\n\n\n9.9AH");
-        xLabel2.add("Batt\n88%\n\n9.9AH");
-        xLabel2.add("Load\n\n\n9.9AH");
+        float A_hours = (float)mA_sec/3600f/1000f;
+        if (mA_sec > 0)
+        {
+            bat_today_color = Color.GREEN;
+        }
+
+        yValues.add(new BarEntry(1, new float[]{Math.abs(A_hours)}));
+        xLabel2.add(String.format("Batt\n%3.1f%%\n\n%2.1f AH",
+                accumActualBatFracMaxDrainRelative/m_battery_index.length*100f, A_hours));
+        colors[1] = bat_today_color;
+
+        // handle load today energy bar
+        A_hours = (float)m_todayCumulativeEnergy[m_load_index]/3600f/1000f;
+        yValues.add(new BarEntry(2, Math.abs(A_hours)));
+        xLabel2.add(String.format("Load\n\n\n%2.1f AH", A_hours));
+        colors[2] = Color.YELLOW;
+
+
 
         BarDataSet set1;
 
         set1 = new BarDataSet(yValues, "Energy");
         set1.setDrawIcons(false); // not sure why
 //        set1.setStackLabels(new String[]{"children", "adults", "elders"});
-        set1.setColors(new int[] {Color.GREEN, Color.RED, Color.YELLOW});
+        set1.setColors(colors);
         set1.setValueTextSize(10.0f);
 
 
         BarData data = new BarData(set1);
-//        data.setValueFormatter(new MyValueFormatter());
+        data.setValueFormatter(new MyValueFormatter());
 
         mChart2.setData(data);
         mChart2.setFitBars(false);
@@ -381,27 +409,48 @@ public class MainActivity extends AppCompatActivity {
     public void setData3(int count){
         ArrayList<BarEntry> yValues = new ArrayList<>();
         xLabel3 = new ArrayList<>();
+        int [] colors = new int[count];
 
-        for(int i=0; i<count; i++){
-            float val1 = (float)(Math.random()*4)+ 2;
+        // Panel power
+        float power_mA = (float)m_current[m_panel_index];
+        yValues.add(new BarEntry(0, power_mA/1000f));
+        xLabel3.add(String.format("Panel\n%2.3f V\n%d mA\n%2.3f W",
+                m_voltage[m_panel_index], m_current[m_panel_index], m_voltage[m_panel_index]*m_current[m_panel_index]/1000f));
+        colors[0] = Color.GREEN;
 
-            yValues.add(new BarEntry(i, new float[]{val1}));
+        // Battery power
+        int batt_current_mA = 0;
+        for(int index=0; index<m_battery_index.length; index++)
+        {
+            batt_current_mA += m_current[m_battery_index[index]];
         }
-        xLabel3.add("Panel\n13.248 V\n452 mA\n6.149W");
-        xLabel3.add("Batt\n\n452 mA\n6.149W");
-        xLabel3.add("Load\n13.248 V\n452 mA\n6.149W");
+        yValues.add(new BarEntry(1, (float)batt_current_mA/1000f));
+        xLabel3.add(String.format("Batt\n\n%d mA\n%2.3f W", batt_current_mA, batt_current_mA*m_voltage[m_battery_index[0]]/1000f ));
+        if (batt_current_mA < 0)
+        {
+            colors[1] = Color.RED;
+        }
+        else
+        {
+            colors[1] = Color.GREEN;
+        }
+
+        // Load power
+        yValues.add(new BarEntry(2, Math.abs((float)m_current[m_load_index]/1000f)));
+        xLabel3.add(String.format("Load\n%2.3f V\n%d mA\n%2.3f W",
+                m_voltage[m_load_index], m_current[m_load_index], m_voltage[m_load_index]*m_current[m_load_index]/1000f ));
+        colors[2] = Color.YELLOW;
 
         BarDataSet set1;
 
         set1 = new BarDataSet(yValues, "Power");
         set1.setDrawIcons(false); // not sure why
-//        set1.setStackLabels(new String[]{"children", "adults", "elders"});
-        set1.setColors(new int[] {Color.GREEN, Color.RED, Color.YELLOW});
+        set1.setColors(colors);
         set1.setValueTextSize(10.0f);
 
 
         BarData data = new BarData(set1);
-//        data.setValueFormatter(new MyValueFormatter());
+        data.setValueFormatter(new MyValueFormatter());
 
         mChart3.setData(data);
         mChart3.setFitBars(false);
