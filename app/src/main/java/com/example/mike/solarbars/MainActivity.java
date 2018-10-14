@@ -1,6 +1,7 @@
 package com.example.mike.solarbars;
 
 import android.graphics.Color;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -25,6 +26,9 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<String> xLabel2;
     ArrayList<String> xLabel3;
 
+    Handler mHandler;
+    Runnable mRunnable;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,7 +47,15 @@ public class MainActivity extends AppCompatActivity {
         setData2(3);
         setData3(3);
 
-
+        mHandler = new Handler();
+        mRunnable = new Runnable(){
+            @Override
+            public void run() {
+                setData(8);
+                mHandler.postDelayed(mRunnable, 1000L);
+            }
+        };
+        mRunnable.run();
     }
 
     public void setData(int count){
