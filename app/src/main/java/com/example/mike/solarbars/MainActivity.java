@@ -342,7 +342,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Handle panel today energy bar
         float mA_hours = (float)m_todayCumulativeEnergy[m_panel_index]/3600f/1000f;  // /3600 convert sec to hr; /1000 mA to A;
-        yValues.add(new BarEntry(0, new float[]{mA_hours}));
+        yValues.add(new BarEntry(0, new float[]{Math.abs(mA_hours)}));
         xLabel2.add(String.format("Panel\n\n\n%2.1f AH", mA_hours));
         colors[0] = Color.GREEN;
 
@@ -419,7 +419,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Panel power
         float power_mA = (float)m_current[m_panel_index];
-        yValues.add(new BarEntry(0, power_mA/1000f));
+        yValues.add(new BarEntry(0, Math.abs(power_mA/1000f)));
         xLabel3.add(String.format("Panel\n%2.3f V\n%d mA\n%2.3f W",
                 m_voltage[m_panel_index], m_current[m_panel_index], m_voltage[m_panel_index]*m_current[m_panel_index]/1000f));
         colors[0] = Color.GREEN;
@@ -430,7 +430,7 @@ public class MainActivity extends AppCompatActivity {
         {
             batt_current_mA += m_current[m_battery_index[index]];
         }
-        yValues.add(new BarEntry(1, (float)batt_current_mA/1000f));
+        yValues.add(new BarEntry(1, (float)Math.abs(batt_current_mA/1000f)));
         xLabel3.add(String.format("Batt\n\n%d mA\n%2.3f W", batt_current_mA, batt_current_mA*m_voltage[m_battery_index[0]]/1000f ));
         if (batt_current_mA < 0)
         {
