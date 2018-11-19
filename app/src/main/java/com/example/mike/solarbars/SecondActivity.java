@@ -65,6 +65,24 @@ public class SecondActivity extends Activity {
     int pale_red   = Color.rgb(255, 128, 128);
     int red        = Color.rgb(255, 0, 0);
 
+    boolean m_enabled = true;
+
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+
+        m_enabled = false;
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+
+        m_enabled = true;
+        mRxRunnable.run();
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -112,7 +130,10 @@ public class SecondActivity extends Activity {
                     setData(m_hist_index);
                     m_hist_index = -1;
                 }
-                mRxHandler.postDelayed(mRxRunnable, 1000L);
+                
+                if (m_enabled == true) {
+                    mRxHandler.postDelayed(mRxRunnable, 1000L);
+                }
             }
         };
 

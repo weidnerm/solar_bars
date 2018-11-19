@@ -68,6 +68,27 @@ public class MainActivity extends AppCompatActivity {
 
     int tempval = -1;
 
+    boolean m_enabled = true;
+
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+
+        m_enabled = false;
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+
+        m_enabled = true;
+        mRunnable.run();
+    }
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -200,7 +221,9 @@ public class MainActivity extends AppCompatActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                mHandler.postDelayed(mRunnable, 1000L);
+                if (m_enabled == true) {
+                    mHandler.postDelayed(mRunnable, 1000L);
+                }
             }
         };
         mRunnable.run();
