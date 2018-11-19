@@ -1,6 +1,7 @@
 package com.example.mike.solarbars;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -8,8 +9,10 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.AxisBase;
@@ -94,11 +97,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
 
-                if (mRxDatagramPacket != null)
+                if ((mRxDatagramPacket != null) && (mRxDatagramPacket.getLength() < 65535))
                 {
                     try{
                         int length;
                         String rxmessage = new String(mRxDatagramPacket.getData());
+//                        Log.w("SolarBars.Main", String.format("mRxDatagramPacket len=%d", mRxDatagramPacket.getLength()));
+//                        Log.w("SolarBars.Main", rxmessage);
+
                         JSONObject overall = new JSONObject(rxmessage);
 
                         JSONArray names = overall.getJSONArray("names");
@@ -199,7 +205,17 @@ public class MainActivity extends AppCompatActivity {
         };
         mRunnable.run();
 
+    }
 
+    public void showActivityTwo( View view)
+    {
+        String button_text;
+        button_text =((Button)view).getText().toString();
+        if(button_text.equals("<"))
+        {
+            Intent ganesh = new Intent(this,SecondActivity.class);
+            startActivity(ganesh);
+        }
     }
 
     private class NetworkTxHandler extends AsyncTask<Void, Void, Void> {
@@ -224,7 +240,7 @@ public class MainActivity extends AppCompatActivity {
     private class NetworkRxHandler extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
-            byte[] rxbuf = new byte[16384];
+            byte[] rxbuf = new byte[65535];
             mRxDatagramPacket = new DatagramPacket(rxbuf, rxbuf.length);
 
             InetAddress destAddr;
@@ -232,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
                 mDatagramSocket.setSoTimeout(1);
                 mDatagramSocket.receive(mRxDatagramPacket);
             } catch (Exception e) {
-                e.printStackTrace();
+//                e.printStackTrace();
             }
 
 

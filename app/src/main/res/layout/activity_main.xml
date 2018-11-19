@@ -7,6 +7,18 @@
     android:orientation="horizontal"
     tools:context=".MainActivity">
 
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="196dp"
+        android:onClick="showActivityTwo"
+        android:text="&lt;"
+        android:textColor="@color/colorPrimary"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="168dp" />
+
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"
@@ -33,7 +45,7 @@
         android:layout_weight="3"
         android:layout_height="match_parent">
         <TextView
-            android:id="@+id/text_view_id"
+            android:id="@+id/text_view_id_energy"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:text="@string/energy" />
@@ -51,7 +63,7 @@
         android:layout_weight="3"
         android:layout_height="match_parent">
         <TextView
-            android:id="@+id/text_view_id"
+            android:id="@+id/text_view_id_power"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:text="@string/power" />
